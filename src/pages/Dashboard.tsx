@@ -229,6 +229,15 @@ const Dashboard: React.FC = () => {
             )}
             {activeSection === "subscriptions" && (
               <div className="mt-[32px] block md:flex items-center justify-between">
+                <div className="flex lg:hidden">
+                  <InputSearch 
+                    type="text" 
+                    image={Search} 
+                    placeholder="Search" 
+                    value={searchTerm} 
+                    onChange={(e) => setSearchTerm(e.target.value)} 
+                  />
+                </div>
                 <div>
                   <Tabs defaultValue="all" className="w-full pb-4 md:pb-0 md:w-[400px]" onValueChange={setActiveTab}>
                     <TabsList className="grid w-full grid-cols-3">
@@ -238,7 +247,7 @@ const Dashboard: React.FC = () => {
                     </TabsList>
                   </Tabs>
                 </div>
-                <div>
+                <div className="hidden lg:flex">
                   <InputSearch 
                     type="text" 
                     image={Search} 
