@@ -229,7 +229,7 @@ const Dashboard: React.FC = () => {
             )}
             {activeSection === "subscriptions" && (
               <div className="mt-[32px] block md:flex items-center justify-between">
-                <div className="flex lg:hidden">
+                <div className="lg:hidden mb-3 mt-3 lg:mt-0 lg:mb-0">
                   <InputSearch 
                     type="text" 
                     image={Search} 
@@ -247,7 +247,7 @@ const Dashboard: React.FC = () => {
                     </TabsList>
                   </Tabs>
                 </div>
-                <div className="hidden lg:flex">
+                <div className="hidden lg:block">
                   <InputSearch 
                     type="text" 
                     image={Search} 

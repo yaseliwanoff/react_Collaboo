@@ -5,6 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from 'react-router-dom';
 import GoogleIcon from "../assets/images/svg/google.svg";
+import { auth } from "@/lib/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
+import { useToken } from '@/contexts/TokenContext';
 
 export function RegisterForm({
   className,
@@ -15,6 +19,7 @@ export function RegisterForm({
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const { setToken } = useToken();
 
   const isEmailValid = (email: string) => {
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -47,24 +52,29 @@ export function RegisterForm({
 
     if (isEmailValid(email) && isPasswordValid) {
       try {
-        const response = await fetch("https://api_link", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        });
+        // Регистрация пользователя с использованием Firebase
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
+        // Получение токена Firebase
+        const token = await user.getIdToken();
 
-        const data = await response.json();
-        console.log("Registration successful:", data);
-        // Здесь можно добавить логику для обработки успешной регистрации, например, перенаправление пользователя
+        // Сохранение токена в localStorage
+        localStorage.setItem('firebaseToken', token);
+        setToken(token); // Сохраните токен в контексте
+
+        // Сохранение email и userId в Local Storage
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('userId', user.uid);
       } catch (error) {
-        console.error("Error during registration:", error);
-        // Здесь можно обработать ошибку, например, показать сообщение об ошибке
+        const firebaseError = error as FirebaseError; // Приведение типа
+
+        console.error("Error during registration:", firebaseError);
+        if (firebaseError.code === 'auth/email-already-in-use') {
+          setEmailError("Email is already in use.");
+        } else {
+          setEmailError("Registration failed. Please try again.");
+        }
       }
     }
   };
